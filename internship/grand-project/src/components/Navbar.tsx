@@ -7,7 +7,7 @@ export default function Navbar() {
         <header className="bg-[#fff7f2]">
             <div className="max-w-7xl mx-auto flex items-center justify-between py-4 px-6">
                 <div className="text-2xl font-bold text-orange-600 tracking-wide">
-                    🍳 RecipeGen
+                    🍽️ RecipeGen
                 </div>
                 <nav className="space-x-6 hidden md:flex items-center text-gray-700 font-medium">
                     <a href="#about" className="hover:text-orange-600">

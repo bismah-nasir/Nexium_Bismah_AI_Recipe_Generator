@@ -85,16 +85,21 @@ export default function DashboardPage() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-orange-50 to-yellow-100 flex flex-col">
             {/* Topbar */}
-            <header className="bg-white shadow-md py-4 px-6 flex justify-between items-center">
-                <h1 className="text-2xl font-bold text-orange-600">
-                    🍽️ RecipeGen
-                </h1>
-                <Button
-                    onClick={handleLogout}
-                    variant="outline"
-                    className="flex items-center gap-2">
-                    <LogOut className="h-4 w-4" /> Logout
-                </Button>
+            <header className="bg-[#fff7f2]">
+                <div className="max-w-7xl mx-auto flex items-center justify-between py-4 px-6">
+                    <h1 className="text-2xl font-bold text-orange-600">
+                        🍽️ RecipeGen
+                    </h1>
+                    <nav className="space-x-6 hidden md:flex items-center text-gray-700 font-medium">
+                        <Button
+                            onClick={handleLogout}
+                            variant="outline"
+                            className="flex items-center gap-2">
+                            <LogOut className="h-4 w-4" /> Logout
+                        </Button>
+                    </nav>
+                </div>
+                <div className="h-[1px] w-full bg-orange-100" />
             </header>
 
             {/* Main Content */}

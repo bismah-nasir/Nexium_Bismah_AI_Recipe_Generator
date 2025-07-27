@@ -108,7 +108,7 @@ export default function Page() {
     }
 
     return (
-        <div className="p-6">
+        <div>
             <h1 className="text-2xl font-bold">
                 {/* Welcome to your dashboard, {session.user.email} */}
             </h1>
