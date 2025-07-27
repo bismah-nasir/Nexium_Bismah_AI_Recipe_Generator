@@ -9,7 +9,7 @@ export default function Navbar() {
                 <div className="text-2xl font-bold text-orange-600 tracking-wide">
                     🍳 RecipeGen
                 </div>
-                <nav className="space-x-6 hidden md:flex text-gray-700 font-medium">
+                <nav className="space-x-6 hidden md:flex items-center text-gray-700 font-medium">
                     <a href="#about" className="hover:text-orange-600">
                         About Us
                     </a>

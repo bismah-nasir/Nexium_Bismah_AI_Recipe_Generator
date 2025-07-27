@@ -25,11 +25,10 @@ export default function HeroSection() {
                 {/* Right Side */}
                 <div className="md:w-1/2 flex justify-center">
                     <Image
-                        src="/images/chef-ai.jpg"
+                        src="/images/chef.png"
                         alt="AI Chef Cooking"
-                        width={450}
-                        height={450}
-                        className="rounded-full shadow-lg"
+                        width={350}
+                        height={350}
                     />
                 </div>
             </div>

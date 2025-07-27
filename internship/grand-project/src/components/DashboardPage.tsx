@@ -1,4 +1,4 @@
-"use client";
+// "use client";
 
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
@@ -42,10 +42,44 @@ export default function DashboardPage() {
         setIngredientTags((prev) => prev.filter((t) => t !== tag));
     };
 
+    // const handleGenerate = async () => {
+    //     setLoading(true);
+    //     // Your logic to call API and generate recipe
+    //     setTimeout(() => setLoading(false), 1500); // Simulate loading
+    // };
+
     const handleGenerate = async () => {
+        if (ingredientTags.length === 0) {
+            alert("Please add at least one ingredient!");
+            return;
+        }
+
         setLoading(true);
-        // Your logic to call API and generate recipe
-        setTimeout(() => setLoading(false), 1500); // Simulate loading
+
+        try {
+            const response = await fetch("/api/generate-recipe", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    ingredients: ingredientTags,
+                    mealType,
+                    diet,
+                    difficulty,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok)
+                throw new Error(data.error || "Something went wrong");
+
+            console.log("Generated Recipe:", data.recipe); // Later we'll display it below the form
+        } catch (err) {
+            console.error(err);
+            alert("Failed to generate recipe. Try again.");
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
