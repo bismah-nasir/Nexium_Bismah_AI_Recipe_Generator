@@ -57,10 +57,20 @@ export default function DashboardPage() {
         setLoading(true);
 
         try {
+            // Get user email from stored session
+            const sessionData = JSON.parse(localStorage.getItem("user-info")!);
+            const userEmail = sessionData?.session?.user?.email;
+
+            if (!userEmail) {
+                alert("User not found. Please log in again.");
+                return;
+            }
+
             const response = await fetch("/api/generate-recipe", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
+                    userEmail,
                     ingredients: ingredientTags,
                     mealType,
                     diet,
@@ -74,6 +84,10 @@ export default function DashboardPage() {
                 throw new Error(data.error || "Something went wrong");
 
             console.log("Generated Recipe:", data.recipe); // Later we'll display it below the form
+            // TODO: Show the recipe in UI instead of just logging it
+            console.log(data.recipe.title); // "Mediterranean Quinoa Salad"
+            console.log(data.recipe.instructions); // [array of steps]
+            console.log(data.recipe.cautions); // [array of cautions]
         } catch (err) {
             console.error(err);
             alert("Failed to generate recipe. Try again.");
@@ -134,6 +148,7 @@ export default function DashboardPage() {
 
                 {/* Dropdowns */}
                 <div className="grid sm:grid-cols-3 gap-4 mb-6">
+                    {/* Meal Type */}
                     <div>
                         <label className="block mb-2 text-sm font-medium text-gray-700">
                             Meal Type
@@ -152,6 +167,7 @@ export default function DashboardPage() {
                         </Select>
                     </div>
 
+                    {/* Dietary Preference */}
                     <div>
                         <label className="block mb-2 text-sm font-medium text-gray-700">
                             Dietary Preference
@@ -170,6 +186,7 @@ export default function DashboardPage() {
                         </Select>
                     </div>
 
+                    {/* Difficulty */}
                     <div>
                         <label className="block mb-2 text-sm font-medium text-gray-700">
                             Difficulty
