@@ -22,6 +22,7 @@ export default function DashboardPage() {
     const [diet, setDiet] = useState("");
     const [difficulty, setDifficulty] = useState("");
     const [loading, setLoading] = useState(false);
+    const [recipe, setRecipe] = useState<any>(null);
 
     const router = useRouter();
 
@@ -84,10 +85,7 @@ export default function DashboardPage() {
                 throw new Error(data.error || "Something went wrong");
 
             console.log("Generated Recipe:", data.recipe); // Later we'll display it below the form
-            // TODO: Show the recipe in UI instead of just logging it
-            console.log(data.recipe.title); // "Mediterranean Quinoa Salad"
-            console.log(data.recipe.instructions); // [array of steps]
-            console.log(data.recipe.cautions); // [array of cautions]
+            setRecipe(data.recipe);
         } catch (err) {
             console.error(err);
             alert("Failed to generate recipe. Try again.");
@@ -217,6 +215,74 @@ export default function DashboardPage() {
                         )}
                     </Button>
                 </div>
+                {/* ✅ Recipe Card */}
+                {recipe && (
+                    <div className="bg-white shadow-lg rounded-xl p-6 border border-gray-200">
+                        {/* ✅ Title & Tags */}
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-2xl font-bold text-orange-700">
+                                {recipe.title}
+                            </h3>
+                            <div className="flex gap-2">
+                                {mealType && (
+                                    <Badge className="bg-orange-100 text-orange-700">
+                                        {mealType}
+                                    </Badge>
+                                )}
+                                {diet && (
+                                    <Badge className="bg-green-100 text-green-700">
+                                        {diet}
+                                    </Badge>
+                                )}
+                                {difficulty && (
+                                    <Badge className="bg-blue-100 text-blue-700">
+                                        {difficulty}
+                                    </Badge>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* ✅ Ingredients */}
+                        <div className="mb-4">
+                            <h4 className="text-lg font-semibold text-gray-800">
+                                Ingredients:
+                            </h4>
+                            <ul className="list-disc list-inside text-gray-700">
+                                {ingredientTags.map((ing, idx) => (
+                                    <li key={idx}>{ing}</li>
+                                ))}
+                            </ul>
+                        </div>
+
+                        {/* ✅ Instructions */}
+                        <div className="mb-4">
+                            <h4 className="text-lg font-semibold text-gray-800">
+                                Instructions:
+                            </h4>
+                            <ol className="list-decimal list-inside text-gray-700 space-y-1">
+                                {recipe.instructions.map(
+                                    (step: string, idx: number) => (
+                                        <li key={idx}>{step}</li>
+                                    )
+                                )}
+                            </ol>
+                        </div>
+
+                        {/* ✅ Cautions */}
+                        <div>
+                            <h4 className="text-lg font-semibold text-red-600">
+                                Cautions:
+                            </h4>
+                            <ul className="list-disc list-inside text-red-500">
+                                {recipe.cautions.map(
+                                    (caution: string, idx: number) => (
+                                        <li key={idx}>{caution}</li>
+                                    )
+                                )}
+                            </ul>
+                        </div>
+                    </div>
+                )}
             </main>
         </div>
     );
