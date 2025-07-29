@@ -22,6 +22,7 @@ export default function DashboardPage() {
     const [diet, setDiet] = useState("");
     const [difficulty, setDifficulty] = useState("");
     const [loading, setLoading] = useState(false);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [recipe, setRecipe] = useState<any>(null);
 
     const router = useRouter();
@@ -42,12 +43,6 @@ export default function DashboardPage() {
     const handleRemoveTag = (tag: string) => {
         setIngredientTags((prev) => prev.filter((t) => t !== tag));
     };
-
-    // const handleGenerate = async () => {
-    //     setLoading(true);
-    //     // Your logic to call API and generate recipe
-    //     setTimeout(() => setLoading(false), 1500); // Simulate loading
-    // };
 
     const handleGenerate = async () => {
         if (ingredientTags.length === 0) {
@@ -84,8 +79,11 @@ export default function DashboardPage() {
             if (!response.ok)
                 throw new Error(data.error || "Something went wrong");
 
-            console.log("Generated Recipe:", data.recipe); // Later we'll display it below the form
-            setRecipe(data.recipe);
+            // console.log("Generated Recipe:", data.recipe); // Later we'll display it below the form
+            // setRecipe(data.recipe);
+
+            // ✅ Redirect user to recipe page with recipeId
+            router.push(`/recipe/${data.recipeId}`);
         } catch (err) {
             console.error(err);
             alert("Failed to generate recipe. Try again.");

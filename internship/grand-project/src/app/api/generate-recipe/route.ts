@@ -259,7 +259,7 @@ export async function POST(req: Request) {
 
         // ✅ 4) Save recipe to MongoDB
         const { db } = await connectToMongoDB();
-        await db.collection("recipes").insertOne({
+        const result = await db.collection("recipes").insertOne({
             userEmail,
             ingredients,
             mealType,
@@ -269,7 +269,8 @@ export async function POST(req: Request) {
             createdAt: new Date(),
         });
 
-        return NextResponse.json({ recipe: n8nData });
+        return NextResponse.json({ recipeId: result.insertedId });
+        // return NextResponse.json({ recipe: n8nData });
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
         console.error("❌ Error generating recipe:", err);
