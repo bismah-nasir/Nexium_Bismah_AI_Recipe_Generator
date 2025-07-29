@@ -1,6 +1,6 @@
 // "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,6 +14,8 @@ import { Loader2, LogOut } from "lucide-react";
 import { supabase } from "../app/api/lib/supabase";
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
+import PreviewCard from "@/components/PreviewCard";
 
 export default function DashboardPage() {
     const [ingredients, setIngredients] = useState<string>("");
@@ -24,8 +26,21 @@ export default function DashboardPage() {
     const [loading, setLoading] = useState(false);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [recipe, setRecipe] = useState<any>(null);
+    const [recentRecipes, setRecentRecipes] = useState<any[]>([]); // 👈 store last 3 recipes
 
     const router = useRouter();
+
+    // ✅ Fetch last 3 recipes for the logged-in user
+    useEffect(() => {
+        async function fetchRecipes() {
+            const email = JSON.parse(localStorage.getItem("user-info")!).session
+                .user.email;
+            const res = await fetch(`/api/recipes?userEmail=${email}&limit=3`);
+            const data = await res.json();
+            setRecentRecipes(data.recipes || []);
+        }
+        fetchRecipes();
+    }, []);
 
     const handleLogout = async () => {
         await supabase.auth.signOut();
@@ -213,74 +228,53 @@ export default function DashboardPage() {
                         )}
                     </Button>
                 </div>
-                {/* ✅ Recipe Card */}
-                {recipe && (
-                    <div className="bg-white shadow-lg rounded-xl p-6 border border-gray-200">
-                        {/* ✅ Title & Tags */}
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-2xl font-bold text-orange-700">
-                                {recipe.title}
-                            </h3>
-                            <div className="flex gap-2">
-                                {mealType && (
-                                    <Badge className="bg-orange-100 text-orange-700">
-                                        {mealType}
-                                    </Badge>
-                                )}
-                                {diet && (
-                                    <Badge className="bg-green-100 text-green-700">
-                                        {diet}
-                                    </Badge>
-                                )}
-                                {difficulty && (
-                                    <Badge className="bg-blue-100 text-blue-700">
-                                        {difficulty}
-                                    </Badge>
-                                )}
-                            </div>
-                        </div>
 
-                        {/* ✅ Ingredients */}
-                        <div className="mb-4">
-                            <h4 className="text-lg font-semibold text-gray-800">
-                                Ingredients:
-                            </h4>
-                            <ul className="list-disc list-inside text-gray-700">
-                                {ingredientTags.map((ing, idx) => (
-                                    <li key={idx}>{ing}</li>
-                                ))}
-                            </ul>
-                        </div>
-
-                        {/* ✅ Instructions */}
-                        <div className="mb-4">
-                            <h4 className="text-lg font-semibold text-gray-800">
-                                Instructions:
-                            </h4>
-                            <ol className="list-decimal list-inside text-gray-700 space-y-1">
-                                {recipe.instructions.map(
-                                    (step: string, idx: number) => (
-                                        <li key={idx}>{step}</li>
-                                    )
-                                )}
-                            </ol>
-                        </div>
-
-                        {/* ✅ Cautions */}
-                        <div>
-                            <h4 className="text-lg font-semibold text-red-600">
-                                Cautions:
-                            </h4>
-                            <ul className="list-disc list-inside text-red-500">
-                                {recipe.cautions.map(
-                                    (caution: string, idx: number) => (
-                                        <li key={idx}>{caution}</li>
-                                    )
-                                )}
-                            </ul>
-                        </div>
+                {/* ✅ Preview Section */}
+                <h3 className="text-2xl font-semibold text-gray-800 mb-4">
+                    📜 Your Recent Recipes
+                </h3>
+                {recentRecipes.length === 0 ? (
+                    <p className="text-gray-600 text-sm">
+                        No recipes yet. Generate one to see it here!
+                    </p>
+                ) : (
+                    <div className="grid md:grid-cols-3 gap-4">
+                        {recentRecipes.map((recipe: any) => (
+                            // <Link
+                            //     key={recipe._id}
+                            //     href={`/recipes/${recipe._id}`}
+                            //     className="block bg-white p-4 rounded-lg shadow hover:shadow-lg transition">
+                            //     <h4 className="text-lg font-semibold text-orange-600 mb-1">
+                            //         {recipe.recipe.title}
+                            //     </h4>
+                            //     <p className="text-gray-600 text-sm line-clamp-2 mb-2">
+                            //         {recipe.ingredients.join(", ")}
+                            //     </p>
+                            //     <div className="flex gap-2 flex-wrap text-xs">
+                            //         <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-full">
+                            //             {recipe.mealType}
+                            //         </span>
+                            //         <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full">
+                            //             {recipe.diet}
+                            //         </span>
+                            //         <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full">
+                            //             {recipe.difficulty}
+                            //         </span>
+                            //     </div>
+                            // </Link>
+                            <PreviewCard key={recipe._id} recipe={recipe} />
+                        ))}
                     </div>
                 )}
+
+                {/* 🔵 Load More */}
+                <div className="text-center mt-6">
+                    <Link
+                        href="/recipes"
+                        className="text-orange-600 hover:underline font-medium">
+                        🔗 Load More Recipes →
+                    </Link>
+                </div>
             </main>
         </div>
     );
