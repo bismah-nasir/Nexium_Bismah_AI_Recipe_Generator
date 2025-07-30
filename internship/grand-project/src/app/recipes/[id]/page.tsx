@@ -68,7 +68,7 @@ export default function RecipeDetailPage() {
 
                     <div className="mt-6 text-center">
                         <Link href="/dashboard">
-                            <Button className="bg-orange-500 hover:bg-orange-600 text-white">
+                            <Button className="bg-orange-500 hover:bg-orange-600 text-white cursor-pointer">
                                 ⬅ Back to Dashboard
                             </Button>
                         </Link>

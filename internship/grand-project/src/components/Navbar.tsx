@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ChefHat } from "lucide-react";
+import { ChefHat, LogIn, LogOut } from "lucide-react";
 
 export default function Navbar({
     isDashboard = false,
@@ -21,8 +21,8 @@ export default function Navbar({
                     {isDashboard ? (
                         <button
                             onClick={onLogout}
-                            className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition">
-                            Log Out
+                            className="flex items-center gap-1 px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition cursor-pointer">
+                            <LogOut className="h-4 w-4" /> Sign Out
                         </button>
                     ) : (
                         <>
@@ -41,8 +41,8 @@ export default function Navbar({
                             </a>
                             <Link
                                 href="/signin"
-                                className="bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 transition">
-                                Sign In
+                                className="flex items-center gap-1 bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600 transition">
+                                <LogIn className="h-4 w-4" /> Sign In
                             </Link>
                         </>
                     )}

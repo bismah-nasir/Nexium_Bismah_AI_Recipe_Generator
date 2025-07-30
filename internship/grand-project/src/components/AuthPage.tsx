@@ -202,7 +202,7 @@ export default function AuthForm() {
                         <Button
                             type="submit"
                             disabled={loading}
-                            className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold transition-all duration-200">
+                            className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold transition-all duration-200 cursor-pointer">
                             {loading ? (
                                 <Loader2 className="w-4 h-4 animate-spin mr-2" />
                             ) : null}
@@ -235,3 +235,114 @@ export default function AuthForm() {
         </div>
     );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// "use client";
+
+// import { useState } from "react";
+// import { Mail } from "lucide-react";
+// import { supabase } from "../app/api/lib/supabase";
+
+// export default function SignInPage() {
+//   const [email, setEmail] = useState("");
+//   const [message, setMessage] = useState("");
+//   const [error, setError] = useState("");
+//   const [loading, setLoading] = useState(false);
+
+//   const handleSignIn = async (e: React.FormEvent) => {
+//     e.preventDefault();
+//     setLoading(true);
+//     setMessage("");
+//     setError("");
+
+//     const { error } = await supabase.auth.signInWithOtp({
+//       email,
+//       options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+//     });
+
+//     setLoading(false);
+
+//     if (error) {
+//       setError(error.message);
+//     } else {
+//       setMessage("Magic link sent! Check your email.");
+//       setEmail("");
+//     }
+//   };
+
+//   return (
+//     <div className="min-h-screen flex items-center justify-center bg-[#fff7f2] px-4">
+//       <div className="bg-white w-full max-w-md rounded-xl shadow-lg p-8">
+//         {/* Icon */}
+//         <div className="flex justify-center">
+//           <div className="bg-orange-100 p-4 rounded-full">
+//             <Mail className="h-8 w-8 text-orange-600" />
+//           </div>
+//         </div>
+
+//         {/* Title */}
+//         <h1 className="text-2xl font-bold text-center mt-4">Welcome back</h1>
+//         <p className="text-gray-600 text-center text-sm mb-6">
+//           Enter your email to receive a magic login link
+//         </p>
+
+//         {/* Form */}
+//         <form onSubmit={handleSignIn} className="space-y-4">
+//           <div>
+//             <label className="block text-sm font-medium text-gray-700 mb-1">
+//               Email address
+//             </label>
+//             <input
+//               type="email"
+//               value={email}
+//               onChange={(e) => setEmail(e.target.value)}
+//               required
+//               placeholder="Enter your email"
+//               className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-orange-400"
+//             />
+//           </div>
+
+//           <button
+//             type="submit"
+//             disabled={loading}
+//             className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 rounded-md transition"
+//           >
+//             {loading ? "Sending..." : "Send Magic Link"}
+//           </button>
+//         </form>
+
+//         {/* Messages */}
+//         {message && (
+//           <p className="mt-4 text-center bg-green-50 text-green-700 p-2 rounded-md text-sm">
+//             {message}
+//           </p>
+//         )}
+//         {error && (
+//           <p className="mt-4 text-center bg-red-50 text-red-700 p-2 rounded-md text-sm">
+//             {error}
+//           </p>
+//         )}
+
+//         {/* Info text */}
+//         <p className="text-gray-500 text-xs text-center mt-6">
+//           We’ll send you a secure login link. No password required!
+//         </p>
+//       </div>
+//     </div>
+//   );
+// }

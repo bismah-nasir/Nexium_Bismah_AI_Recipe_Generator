@@ -227,7 +227,7 @@ export default function RecipeCard({ recipe }: { recipe: any }) {
             <div className="flex justify-center mt-6">
                 <Button
                     onClick={() => router.push("/dashboard")}
-                    className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-md">
+                    className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-md cursor-pointer">
                     ⬅ Back to Dashboard
                 </Button>
             </div>
