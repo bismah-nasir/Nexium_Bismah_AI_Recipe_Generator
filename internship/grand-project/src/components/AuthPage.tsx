@@ -137,14 +137,14 @@ export default function AuthForm() {
                 email,
                 password,
             });
-            console.log('Data:', data);
-            console.log('Error:', error);
+            console.log("Data:", data);
+            console.log("Error:", error);
             authError = error;
             authData = data;
             if (!authError && authData.session) {
-                console.log('Inside success if');
+                console.log("Inside success if");
                 setMessage("Logged in successfully!");
-                localStorage.setItem('user-info', JSON.stringify(data));
+                localStorage.setItem("user-info", JSON.stringify(data));
                 router.push("/dashboard"); // Redirect on successful login
             }
         }
@@ -235,22 +235,6 @@ export default function AuthForm() {
         </div>
     );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // "use client";
 
