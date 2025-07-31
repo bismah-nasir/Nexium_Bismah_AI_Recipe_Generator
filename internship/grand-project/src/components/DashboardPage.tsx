@@ -261,7 +261,7 @@ export default function DashboardPage() {
                     {/* ✅ Load More Button */}
                     <Link
                         href="/recipes"
-                        className="block text-center mt-4 text-orange-600 hover:underline font-medium flex items-center justify-center gap-2">
+                        className="text-center mt-4 text-orange-600 hover:underline font-medium flex items-center justify-center gap-2">
                         Load More Recipes
                         <ArrowRight className="h-4 w-4 mt-0.5" />
                     </Link>
