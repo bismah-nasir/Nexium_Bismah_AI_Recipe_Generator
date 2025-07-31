@@ -10,7 +10,7 @@ export default function Footer() {
                 <div className="flex flex-col md:flex-row justify-between items-center mb-6">
                     {/* Logo */}
                     <div className="flex items-center mb-4 md:mb-0">
-                        <ChefHat className="h-8 w-8 mr-2" />
+                        <ChefHat className="h-6 w-6 mr-2" />
                         <span className="text-2xl font-bold tracking-wide">
                             RecipeGen
                         </span>
