@@ -27,11 +27,6 @@ Built with **Next.js 15**, **Supabase**, **MongoDB**, and **n8n**, this app deli
 
 ---
 
-## 📂 Project Structure
-
-
----
-
 ## ⚙️ **Setup Instructions**
 
 ### 1️⃣ **Clone the repo**
@@ -74,10 +69,13 @@ git push origin main
 
 ## 📸 **Screenshots**
 🖼 Landing Page
+![image_alt](https://github.com/bismah-nasir/Nexium_Bismah_AI_Recipe_Generator/blob/f72d4ec9291d4b19b68568a6f34605ddeb9c9b9e/internship/grand-project/public/images/ai-recipe-generator-landing-page.PNG)
 
 🖼 Dashboard Page
+![image_alt](https://github.com/bismah-nasir/Nexium_Bismah_AI_Recipe_Generator/blob/f72d4ec9291d4b19b68568a6f34605ddeb9c9b9e/internship/grand-project/public/images/ai-recipe-generator-dashboard.PNG)
 
 🖼 Recipe Detail Page
+![image_alt](https://github.com/bismah-nasir/Nexium_Bismah_AI_Recipe_Generator/blob/f72d4ec9291d4b19b68568a6f34605ddeb9c9b9e/internship/grand-project/public/images/ai-recipe-generator-recipe-detail.png)
 
 ---
 
