@@ -62,8 +62,8 @@ export default function Features() {
                             Nutritional Breakdown
                         </h3>
                         <p className="text-gray-700 text-sm">
-                            Future-ready: Each recipe will show calories,
-                            macros, and other key nutritional info.
+                            Each recipe shows calories, macros, and other key
+                            nutritional info.
                         </p>
                     </div>
                 </div>

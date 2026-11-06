@@ -116,6 +116,16 @@ export default function DashboardPage() {
             if (response.status === 401) return; // authFetch is redirecting to sign in
             const data = await response.json();
 
+            // The ingredients need changing, so retrying won't help
+            if (response.status === 400 || response.status === 422) {
+                setAlertInfo({
+                    title: "Let's try different ingredients",
+                    message: data.error,
+                    variant: "warning",
+                });
+                return;
+            }
+
             if (!response.ok)
                 throw new Error(data.error || "Something went wrong");
 

@@ -84,7 +84,7 @@ git push origin main
 
 You can view the live version of the AI Recipe Generator App deployed on Vercel here:
 
-https://nexium-bismah-ai-recipe-generator.vercel.app/
+https://ai-recipegen.vercel.app/
 
 ---
 

@@ -131,6 +131,22 @@ export default function RecipeDetailPage() {
                             </ul>
                         </section>
 
+                        {/* Adjustments */}
+                        {recipe.recipe.adjustments?.length > 0 && (
+                            <section className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
+                                <h2 className="text-lg font-semibold text-blue-700 mb-2">
+                                    🔄 Changes to Your Ingredients
+                                </h2>
+                                <ul className="list-disc list-inside text-blue-700 leading-relaxed">
+                                    {recipe.recipe.adjustments.map(
+                                        (note: string, idx: number) => (
+                                            <li key={idx}>{note}</li>
+                                        )
+                                    )}
+                                </ul>
+                            </section>
+                        )}
+
                         {/* Instructions */}
                         <section className="mb-6">
                             <h2 className="text-xl font-semibold text-gray-800 mb-2">
