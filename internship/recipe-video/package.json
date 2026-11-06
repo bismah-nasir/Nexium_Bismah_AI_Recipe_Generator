@@ -5,6 +5,7 @@
     "scripts": {
         "studio": "remotion studio",
         "render": "remotion render RecipeGenDemo out/recipegen-demo.mp4",
+        "poster": "remotion still RecipeGenPoster out/poster.jpg --image-format=jpeg --jpeg-quality=95",
         "music": "tsx scripts/music.mts",
         "record": "tsx scripts/record.mts"
     },
