@@ -1,7 +1,7 @@
 # 👨‍🍳 AI Recipe Generator
 
 An **AI-powered web application** that generates **personalized recipes** based on user-provided ingredients, dietary preferences, and difficulty level.  
-Built with **Next.js 15**, **Supabase**, **MongoDB**, and **n8n**, this app delivers recipes with **nutritional breakdown, cooking tips, and cautions** – all in a clean, user-friendly UI.
+Built with **Next.js 15**, **Supabase**, **MongoDB**, and the **Gemini API**, this app delivers recipes with **nutritional breakdown, cooking tips, and cautions** – all in a clean, user-friendly UI.
 
 ---
 
@@ -20,7 +20,7 @@ Built with **Next.js 15**, **Supabase**, **MongoDB**, and **n8n**, this app deli
 ## 🏗️ Tech Stack
 
 - **Frontend:** [Next.js 15](https://nextjs.org/), [Tailwind CSS 4](https://tailwindcss.com/), [ShadCN UI](https://ui.shadcn.com/)  
-- **Backend:** [n8n](https://n8n.io/) (AI workflow for recipe generation)  
+- **AI:** [Gemini API](https://aistudio.google.com/docs) (recipe generation with structured JSON output)  
 - **Auth:** [Supabase](https://supabase.com/) (email/password)  
 - **Database:** [MongoDB Atlas](https://www.mongodb.com/) (store user recipes)  
 - **Deployment:** [Vercel](https://vercel.com/)
@@ -44,9 +44,10 @@ pnpm install
 Create a .env.local file in the root:
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-supabase-publishable-key
 MONGODB_URI=your-mongodb-connection-string
-N8N_WEBHOOK_URL=your-n8n-webhook
+GEMINI_API_KEY=your-gemini-api-key
+GEMINI_MODEL=gemini-3.5-flash-lite
 ```
 
 ### 4️⃣ Run the app

@@ -17,12 +17,13 @@ import {
     ScrollText,
     Sparkles,
 } from "lucide-react";
-import { supabase } from "../app/api/lib/supabase";
+import { supabase, signOut, authFetch } from "../app/api/lib/supabase";
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import PreviewCard from "@/components/PreviewCard";
 import Navbar from "./Navbar";
+import AlertModal, { type AlertInfo } from "./AlertModal";
 
 export default function DashboardPage() {
     const [ingredients, setIngredients] = useState<string>("");
@@ -32,23 +33,46 @@ export default function DashboardPage() {
     const [difficulty, setDifficulty] = useState("");
     const [loading, setLoading] = useState(false);
     const [recentRecipes, setRecentRecipes] = useState<any[]>([]);
+    const [recipesLoading, setRecipesLoading] = useState(true);
+    const [recipesError, setRecipesError] = useState(false);
+    const [alertInfo, setAlertInfo] = useState<AlertInfo | null>(null);
 
     const router = useRouter();
 
     // Fetch last 3 recipes for the logged-in user
-    useEffect(() => {
-        async function fetchRecipes() {
-            const email = JSON.parse(localStorage.getItem("user-info")!).session
-                .user.email;
-            const res = await fetch(`/api/recipes?userEmail=${email}&limit=3`);
+    async function fetchRecipes() {
+        setRecipesError(false);
+        try {
+            const res = await authFetch("/api/recipes?limit=3");
+            if (res.status === 401) return; // authFetch is redirecting to sign in
+            if (!res.ok) throw new Error(`Status ${res.status}`);
             const data = await res.json();
             setRecentRecipes(data.recipes || []);
+        } catch (err) {
+            console.warn("Failed to load recent recipes:", err);
+            setRecipesError(true);
+        } finally {
+            setRecipesLoading(false);
         }
-        fetchRecipes();
+    }
+
+    // Load recipes once Supabase has a session. Listening for auth events (instead of
+    // checking once on mount) avoids showing an empty list right after signing in,
+    // before the session is ready.
+    useEffect(() => {
+        const {
+            data: { subscription },
+        } = supabase.auth.onAuthStateChange((event, session) => {
+            if (session && (event === "INITIAL_SESSION" || event === "SIGNED_IN")) {
+                // Deferred: Supabase advises against calling its API inside this callback
+                setTimeout(fetchRecipes, 0);
+            }
+        });
+        return () => subscription.unsubscribe();
     }, []);
 
     const handleLogout = async () => {
-        await supabase.auth.signOut();
+        await signOut();
         router.push("/signin");
     };
 
@@ -66,27 +90,22 @@ export default function DashboardPage() {
 
     const handleGenerate = async () => {
         if (ingredientTags.length === 0) {
-            alert("Please add at least one ingredient!");
+            setAlertInfo({
+                title: "No ingredients yet",
+                message:
+                    "Add at least one ingredient (type it and press Enter) so we know what to cook with.",
+                variant: "warning",
+            });
             return;
         }
 
         setLoading(true);
 
         try {
-            // Get user email from stored session
-            const sessionData = JSON.parse(localStorage.getItem("user-info")!);
-            const userEmail = sessionData?.session?.user?.email;
-
-            if (!userEmail) {
-                alert("User not found. Please log in again.");
-                return;
-            }
-
-            const response = await fetch("/api/generate-recipe", {
+            const response = await authFetch("/api/generate-recipe", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    userEmail,
                     ingredients: ingredientTags,
                     mealType,
                     diet,
@@ -94,19 +113,24 @@ export default function DashboardPage() {
                 }),
             });
 
+            if (response.status === 401) return; // authFetch is redirecting to sign in
             const data = await response.json();
 
             if (!response.ok)
                 throw new Error(data.error || "Something went wrong");
 
-            // console.log("Generated Recipe:", data.recipe); // Later we'll display it below the form
-            // setRecipe(data.recipe);
-
             // ✅ Redirect user to recipe page with recipeId
-            router.push(`/recipe/${data.recipeId}`);
+            router.push(`/recipes/${data.recipeId}?from=dashboard`);
         } catch (err) {
-            console.error(err);
-            alert("Failed to generate recipe. Try again.");
+            console.warn("Failed to generate recipe:", err);
+            setAlertInfo({
+                title: "Couldn't generate your recipe",
+                message:
+                    "Something went wrong while creating your recipe. Please try again in a moment.",
+                variant: "error",
+                actionLabel: "Try again",
+                onAction: handleGenerate,
+            });
         } finally {
             setLoading(false);
         }
@@ -116,9 +140,10 @@ export default function DashboardPage() {
         <div className="min-h-screen bg-[#fff9f5]">
             {/* ✅ Navbar */}
             <Navbar isDashboard={true} onLogout={handleLogout} />
+            <AlertModal alert={alertInfo} onClose={() => setAlertInfo(null)} />
 
             {/* ✅ Two-Column Layout */}
-            <div className="max-w-7xl mx-auto p-6 grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="max-w-7xl mx-auto p-6 grid grid-cols-1 md:grid-cols-3 md:items-start gap-8">
                 {/* ✅ LEFT COLUMN — Recipe Generator Form */}
                 <div className="md:col-span-2 bg-white p-6 rounded-xl shadow-md">
                     <h2 className="text-2xl font-bold text-orange-600 mb-4 flex items-center">
@@ -160,7 +185,7 @@ export default function DashboardPage() {
                                 Meal Type
                             </label>
                             <Select onValueChange={setMealType}>
-                                <SelectTrigger className="bg-white">
+                                <SelectTrigger className="bg-white w-full">
                                     <SelectValue placeholder="Select type" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -181,7 +206,7 @@ export default function DashboardPage() {
                                 Dietary Preference
                             </label>
                             <Select onValueChange={setDiet}>
-                                <SelectTrigger className="bg-white">
+                                <SelectTrigger className="bg-white w-full">
                                     <SelectValue placeholder="Select diet" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -200,7 +225,7 @@ export default function DashboardPage() {
                                 Difficulty
                             </label>
                             <Select onValueChange={setDifficulty}>
-                                <SelectTrigger className="bg-white">
+                                <SelectTrigger className="bg-white w-full">
                                     <SelectValue placeholder="Select level" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -240,7 +265,21 @@ export default function DashboardPage() {
                     </h3>
 
                     {/* ✅ Show Recipes */}
-                    {recentRecipes.length === 0 ? (
+                    {recipesLoading ? (
+                        <p className="text-gray-600 text-sm flex items-center gap-2">
+                            <Loader2 className="h-4 w-4 animate-spin text-orange-600" />
+                            Loading your recipes...
+                        </p>
+                    ) : recipesError ? (
+                        <p className="text-red-700 text-sm">
+                            Couldn&apos;t load your recipes.{" "}
+                            <button
+                                onClick={fetchRecipes}
+                                className="underline font-medium cursor-pointer">
+                                Try again
+                            </button>
+                        </p>
+                    ) : recentRecipes.length === 0 ? (
                         <p className="text-gray-600 text-sm">
                             No recipes yet. Generate one to see it here!
                         </p>

@@ -1,27 +1,35 @@
 // middleware.ts
-import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs";
+import { createServerClient } from "@supabase/ssr";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export async function middleware(req: NextRequest) {
-    console.log("Running middleware....");
-    const res = NextResponse.next();
-    // console.log('REs:', res);
-    const supabase = createMiddlewareClient({ req, res });
-    // console.log('Supabase:', supabase);
+    let res = NextResponse.next({ request: req });
+
+    const supabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+        {
+            cookies: {
+                getAll() {
+                    return req.cookies.getAll();
+                },
+                setAll(cookiesToSet) {
+                    cookiesToSet.forEach(({ name, value }) =>
+                        req.cookies.set(name, value)
+                    );
+                    res = NextResponse.next({ request: req });
+                    cookiesToSet.forEach(({ name, value, options }) =>
+                        res.cookies.set(name, value, options)
+                    );
+                },
+            },
+        }
+    );
 
     // This command is critical: it attempts to refresh the session
     // from the cookies and updates them on the response.
-    // Ensure this line is always awaited and completes.
     await supabase.auth.getSession();
-
-    // Debugging: Log session status in middleware
-    const { data } = await supabase.auth.getSession(); // Re-fetch for logging
-    const { session } = data;
-    console.log(
-        "Middleware: Session data:",
-        session ? session.user.email : "No session"
-    );
 
     return res;
 }

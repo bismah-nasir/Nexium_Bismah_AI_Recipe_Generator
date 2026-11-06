@@ -33,7 +33,8 @@ export default function HeroSection() {
                         src="/images/chef.png"
                         alt="AI Chef Cooking"
                         width={350}
-                        height={350}
+                        height={525}
+                        priority
                     />
                 </div>
             </div>

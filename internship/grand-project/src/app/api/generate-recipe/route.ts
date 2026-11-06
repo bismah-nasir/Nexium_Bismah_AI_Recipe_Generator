@@ -1,63 +1,84 @@
+import { GoogleGenAI } from "@google/genai";
 import { connectToMongoDB } from "@/app/api/lib/mongodb";
 import { NextResponse } from "next/server";
+import { getRequestUserEmail } from "@/app/api/lib/auth";
+import { z } from "zod";
+
+// Give Vercel enough time to wait for the model's response.
+export const maxDuration = 60;
+
+// The shape the recipe page reads from recipe.recipe.
+const RecipeSchema = z.object({
+    title: z.string(),
+    cook_time: z.string().describe('Total time, e.g. "30 minutes"'),
+    servings: z.number().describe("Number of servings, as a whole number"),
+    instructions: z.array(z.string()),
+    cautions: z.array(z.string()),
+    chef_tips: z.array(z.string()),
+    nutrition: z
+        .object({
+            calories: z.number().describe("kcal per serving"),
+            protein: z.number().describe("grams per serving"),
+            carbs: z.number().describe("grams per serving"),
+            fat: z.number().describe("grams per serving"),
+        })
+        .describe("Estimated values per serving"),
+});
+
+const SYSTEM_PROMPT = `You are a chef who writes clear, reliable recipes for home cooks.
+
+Build the recipe around the ingredients the user lists. You may add common pantry staples such as salt, oil, and spices. Respect the requested meal type, diet, and difficulty.
+
+The recipe page only shows the user's ingredient names, so state the quantity of each ingredient in the instruction step that uses it.
+
+Use cautions for allergens in the recipe and food safety points such as safe cooking temperatures.`;
 
 export async function POST(req: Request) {
     try {
-        const { userEmail, ingredients, mealType, diet, difficulty } =
-            await req.json();
-
+        const userEmail = await getRequestUserEmail(req);
         if (!userEmail) {
             return NextResponse.json(
-                { error: "User email is required" },
+                { error: "Not authenticated" },
+                { status: 401 }
+            );
+        }
+
+        const { ingredients, mealType, diet, difficulty } = await req.json();
+
+        if (!Array.isArray(ingredients) || ingredients.length === 0) {
+            return NextResponse.json(
+                { error: "At least one ingredient is required" },
                 { status: 400 }
             );
         }
 
-        // Call n8n webhook
-        console.log(
-            "➡ Sending data to n8n webhook:",
-            process.env.N8N_WEBHOOK_URL
-        );
-
-        const n8nResponse = await fetch(process.env.N8N_WEBHOOK_URL!, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                prompt: `Generate a recipe in JSON format for:\n\nIngredients: ${ingredients.join(
-                    ", "
-                )}\n- Meal Type: ${mealType}\n- Diet: ${diet}\n- Difficulty: ${difficulty}`,
-            }),
+        const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+        const response = await ai.models.generateContent({
+            model: process.env.GEMINI_MODEL || "gemini-3.5-flash-lite",
+            contents: `Ingredients: ${ingredients.join(
+                ", "
+            )}\nMeal Type: ${mealType}\nDiet: ${diet}\nDifficulty: ${difficulty}`,
+            config: {
+                systemInstruction: SYSTEM_PROMPT,
+                responseMimeType: "application/json",
+                responseJsonSchema: z.toJSONSchema(RecipeSchema),
+            },
         });
 
-        const rawText = await n8nResponse.text();
-
-        console.log("➡ Raw n8n Response:", rawText);
-
-        if (!n8nResponse.ok) {
-            throw new Error("❌ n8n webhook failed");
-        }
-
-        // Try parsing JSON safely
-        let n8nData;
-        try {
-            n8nData = JSON.parse(rawText);
-        } catch (err) {
-            console.error("❌ Could not parse JSON from n8n:", err);
+        // text is empty when Gemini blocks the request or returns no candidate.
+        if (!response.text) {
+            console.error(
+                "❌ No recipe returned:",
+                response.promptFeedback?.blockReason ??
+                    response.candidates?.[0]?.finishReason
+            );
             return NextResponse.json(
-                { error: "Invalid JSON response from n8n", raw: rawText },
-                { status: 500 }
+                { error: "Could not generate a recipe for these ingredients" },
+                { status: 502 }
             );
         }
-        
-        if (!n8nData.title || !n8nData.instructions || !n8nData.cautions) {
-            return NextResponse.json(
-                {
-                    error: "n8n response missing required fields",
-                    data: n8nData,
-                },
-                { status: 500 }
-            );
-        }
+
+        const recipe = RecipeSchema.parse(JSON.parse(response.text));
 
         // Save recipe to MongoDB
         const { db } = await connectToMongoDB();
@@ -67,15 +88,16 @@ export async function POST(req: Request) {
             mealType,
             diet,
             difficulty,
-            recipe: n8nData,
+            recipe,
             createdAt: new Date(),
         });
 
         return NextResponse.json({ recipeId: result.insertedId });
-        // return NextResponse.json({ recipe: n8nData });
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
+    } catch (err) {
         console.error("❌ Error generating recipe:", err);
-        return NextResponse.json({ error: err.message }, { status: 500 });
+        return NextResponse.json(
+            { error: "Failed to generate recipe" },
+            { status: 500 }
+        );
     }
 }

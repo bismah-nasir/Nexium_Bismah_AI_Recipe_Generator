@@ -1,16 +1,17 @@
 import { NextResponse } from "next/server";
 import { connectToMongoDB } from "@/app/api/lib/mongodb";
+import { getRequestUserEmail } from "@/app/api/lib/auth";
 
 export async function GET(req: Request) {
     try {
         const { searchParams } = new URL(req.url);
-        const userEmail = searchParams.get("userEmail");
         const limit = parseInt(searchParams.get("limit") || "0", 10);
 
+        const userEmail = await getRequestUserEmail(req);
         if (!userEmail) {
             return NextResponse.json(
-                { error: "User email is required" },
-                { status: 400 }
+                { error: "Not authenticated" },
+                { status: 401 }
             );
         }
 

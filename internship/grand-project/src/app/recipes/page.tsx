@@ -4,27 +4,41 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import PreviewCard from "@/components/PreviewCard";
 import Navbar from "@/components/Navbar";
-import { ChefHat, ArrowLeft } from "lucide-react";
-import { supabase } from "../api/lib/supabase";
+import { ChefHat, ArrowLeft, Loader2 } from "lucide-react";
+import { signOut, getUserEmail, authFetch } from "../api/lib/supabase";
 import { useRouter } from "next/navigation";
 
 export default function RecipesPage() {
     const [recipes, setRecipes] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(false);
     const router = useRouter();
 
     // ✅ Handle logout for navbar
     const handleLogout = async () => {
-        await supabase.auth.signOut();
+        await signOut();
         router.push("/signin");
     };
 
     useEffect(() => {
         async function fetchAllRecipes() {
-            const email = JSON.parse(localStorage.getItem("user-info")!).session
-                .user.email;
-            const res = await fetch(`/api/recipes?userEmail=${email}`);
-            const data = await res.json();
-            setRecipes(data.recipes || []);
+            const email = await getUserEmail();
+            if (!email) {
+                router.replace("/signin");
+                return;
+            }
+            try {
+                const res = await authFetch("/api/recipes");
+                if (res.status === 401) return; // authFetch is redirecting to sign in
+                if (!res.ok) throw new Error(`Status ${res.status}`);
+                const data = await res.json();
+                setRecipes(data.recipes || []);
+            } catch (err) {
+                console.warn("Failed to load recipes:", err);
+                setError(true);
+            } finally {
+                setLoading(false);
+            }
         }
         fetchAllRecipes();
     }, []);
@@ -44,7 +58,16 @@ export default function RecipesPage() {
                 </div>
 
                 {/* Recipes Grid */}
-                {recipes.length === 0 ? (
+                {loading ? (
+                    <p className="text-gray-600 text-center flex items-center justify-center gap-2">
+                        <Loader2 className="h-5 w-5 animate-spin text-orange-600" />
+                        Loading your recipes...
+                    </p>
+                ) : error ? (
+                    <p className="text-red-700 text-center">
+                        Couldn&apos;t load your recipes. Please refresh the page.
+                    </p>
+                ) : recipes.length === 0 ? (
                     <p className="text-gray-600 text-center">
                         No recipes found.
                     </p>
